@@ -17,7 +17,7 @@ jobs:
           node-version: 16
       - run: node --version
       - run: npm --version
-      - uses: action/checkout@v3
+      - uses: actions/checkout@v3
       - run: npm install
       - run: npm run serve
 
