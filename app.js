@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Defect = require('./models/defect.js')
 const morgan = require('morgan')
+require('dotenv/config');
 
 //express app
 const app = express();
@@ -10,13 +11,21 @@ const app = express();
 app.set('view engine', 'ejs')
 
 //connect to mongo database, URL must set below app = express()								/here is the database name, if not exist will create new one
-const dbURI = 'mongodb+srv://rnd01:rnd12345@nodejs-tutorial.8narwid.mongodb.net/note-tuts?retryWrites=true&w=majority' //remember log in db acc, and go to the database set your IP to netword access
-mongoose.connect(dbURI) //mongoose.connect(dbURI, {useNewUrlParses: true, useUnifiedTopology: true}) parameter is to stop a Deprecation warning. mongoose.connect is a asynchro called
-	.then((result) => app.listen(4000)) //you can set app.listen to ensure client only may link to the website while database connection successfully. !!!Using nodemon cannot see console
-	.catch((err) => console.log(err));
+// const dbURI = 'mongodb+srv://rnd01:rnd12345@nodejs-tutorial.8narwid.mongodb.net/note-tuts?retryWrites=true&w=majority' //remember log in db acc, and go to the database set your IP to netword access
+// mongoose.connect(dbURI) //mongoose.connect(dbURI, {useNewUrlParses: true, useUnifiedTopology: true}) parameter is to stop a Deprecation warning. mongoose.connect is a asynchro called
+// 	.then((result) => app.listen(4000)) //you can set app.listen to ensure client only may link to the website while database connection successfully. !!!Using nodemon cannot see console
+// 	.catch((err) => console.log(err));
 
 // //listen for requests
 // app.listen(4000); //port number to connect this server
+
+//connect mongodb by .env variable
+var listen_port = process.env.PORT || 4000 //get port variable from .env || default port
+mongoose.connect(process.env.MONGO_URL, //get mongoDB URl from .env also include the expose port
+    { useNewUrlParser: true, useUnifiedTopology: true }) //setNewUrlPraser to true allow users to fall back to the old parser if they find a bug in the new parser. Set UnifiedTopology to true to opt in to using the MongoDB driver's new connection management engine
+	.then((result) => app.listen(listen_port)) //is mongodb connect successfully then create the webpage on that port
+	.catch((err) => console.log(err));
+
 
 app.use((req, res, next) => {
 	console.log('first app.use');	
@@ -33,23 +42,23 @@ app.use(express.urlencoded({ extended: true })) //while sending form/post reques
 
 // // mongoose and mongo sandbox routes
 // //store data to mongo, by url
-// app.get('/add-defect', (req,res) => {
-// 	const defect = new Defect({ //here is create a new defect, follow the DOM on ./models/defect.js
-// 		title: "new defect 3",
-// 		snippet: 'about my new defect3',
-// 		body: 'more about my  defect3',
-// 		hihi: 123.04
-// 	})
+app.get('/add-defect', (req,res) => {
+	const defect = new Defect({ //here is create a new defect, follow the DOM on ./models/defect.js
+		title: "new defect 3",
+		snippet: 'about my new defect3',
+		body: 'more about my  defect3',
+		hihi: 123.04
+	})
 
-// 	defect.save() //save defect to collection
-// 		.then((result) => {
-// 			res.send(result)
-// 		})
-// 		.catch((err) => {
-// 			console.log(err)
-// 		})
+	defect.save() //save defect to collection
+		.then((result) => {
+			res.send(result)
+		})
+		.catch((err) => {
+			console.log(err)
+		})
 
-// })
+})
 
 //store data to mongo, by form
 app.post('/defects', (req, res) => { //this will be trigger when form is submit. Since form is set as post request, use post

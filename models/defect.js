@@ -14,7 +14,15 @@ const defectSchema = new Schema({ //create a defect Schema, like a defect object
         type: String,
         required: true
     },
-    hihi: Number // int, float, etc
+    hihi: Number, // int, float, etc
+    img:{
+        data: Buffer,
+        contentType: String
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    }
     
 }, {timrstamps: true})
 
