@@ -1,0 +1,24 @@
+services:
+  nodejs:
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
+    image: fyp_nodejs_i
+    container_name: fyp_nodejs_c
+    command: npm run serve
+    ports:
+      - 4000:4000
+
+  # web:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./frontend/vue_crash_tutorial/Dockerfile
+  #   image: node_t_web_dc_i
+  #   container_name: node_t_dc_web_c
+  #   volumes:
+  #     - ./frontend/vue_crash_tutorial/src:/app/src
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - nodejs
+

@@ -1,0 +1,23 @@
+<html lang="en">
+    <%- include('./partials/head.ejs') %>
+    <link rel="stylesheet" href="style.css">
+
+    <body>
+        <%- include('./partials/nav.ejs') %> <!-- '-'import/include other file to this file, like vue.js components-->
+
+        <div class="create-defect content">
+            <form action="/defects" method="POST">
+                <label for="title">Defect title:</label>
+                <input for="text" id="title" name="title" required>
+                <label for="snippet">Defect snippet:</label>
+                <input for="text" id="snippet" name="snippet" required>
+                <label for="body">Defect body:</label>
+                <textarea id="body" required name="body"></textarea>
+                <button>Submit</button>
+            </form>
+        </div>
+        <%- include('./partials/footer.ejs') %>
+    </body>
+
+
+</html>

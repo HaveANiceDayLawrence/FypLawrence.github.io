@@ -1,0 +1,44 @@
+<html lang="en">
+
+<%- include('./partials/head.ejs') %>
+
+    <body>
+        <%- include('./partials/nav.ejs') %> <!-- '-'import/include other file to this file, like vue.js components-->
+
+            <div class="details content">
+                <h2>
+                    <%= defect.title %>
+                </h2>
+                <div class="content">
+                    <p>
+                        <%= defect.snippet %>
+                    </p>
+                    <p>
+                        <%= defect.body %>
+                    </p>
+                    <button class="delete" data-doc="<%= defect._id %>">
+                        delete
+                    </button>
+                </div>
+
+            </div>
+
+            <%- include('./partials/footer.ejs') %>
+
+    </body>
+
+    <script>
+        const trashcan = document.querySelector("button.delete")
+        trashcan.addEventListener('click', (e) => {
+            const endpoint = `${trashcan.dataset.doc}`; //which endpoint perform delete (api path), and insert the data get data-doc value (_id) 
+
+            fetch(endpoint, {
+                method: 'DELETE'
+            })
+            .then((response) => response.json()) //get the delete response (like console.log/ signal to infrom user the data is deleted), from app.js delete request
+            .then((data) => window.location.href = data.redirect) //after delete, redirect to "data.redirect" page, "redirect" is the keyword from app.js
+            .catch(err => console.log(err))
+        })
+    </script>
+
+</html>
