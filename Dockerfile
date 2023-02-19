@@ -1,6 +1,6 @@
 FROM node:latest as build
 
-COPY ./frontend /mnt
+COPY . /mnt
 
 WORKDIR /mnt
 
