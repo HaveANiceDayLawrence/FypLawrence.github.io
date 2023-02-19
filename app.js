@@ -16,7 +16,7 @@ app.set('view engine', 'ejs')
 // 	.catch((err) => console.log(err));
 
 // //listen for requests
-app.listen(8080); //port number to connect this server
+app.listen(4000); //port number to connect this server
 
 app.use((req, res, next) => {
 	console.log('first app.use');	

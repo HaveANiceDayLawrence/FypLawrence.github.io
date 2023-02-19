@@ -8,8 +8,8 @@ RUN npm install
 RUN npm install nodemon
 RUN npm install ejs
 RUN npm install mongoose
-# RUN npm install morgon
+# RUN npm install morgoapp.jsn
 
 EXPOSE 4000
 
-CMD ["npm", "run", "serve"]
+CMD ["npm", "run", "build"]
