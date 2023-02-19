@@ -1,0 +1,11 @@
+on: push
+jobs: 
+  build-node:
+    runs-on: ubuntu-latest
+    container: code:14
+    steps:
+      - run: node --version
+      - run: npm --version
+      - uses: action/checkout@v3
+      - run: npm install
+      - run: npm run serve
