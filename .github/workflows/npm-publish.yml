@@ -2,7 +2,6 @@ on: push
 jobs: 
   build-node:
     runs-on: ubuntu-latest
-    container: code:14
     steps:
       - run: node --version
       - run: npm --version
@@ -10,5 +9,3 @@ jobs:
       - run: npm install
       - run: npm run serve
       
-credentials: username: Lawrence419 
-password: ${{ secrets.Law!@#123}}
