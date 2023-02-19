@@ -10,13 +10,13 @@ const app = express();
 app.set('view engine', 'ejs')
 
 //connect to mongo database, URL must set below app = express()								/here is the database name, if not exist will create new one
-// const dbURI = 'mongodb+srv://rnd01:rnd12345@nodejs-tutorial.8narwid.mongodb.net/note-tuts?retryWrites=true&w=majority' //remember log in db acc, and go to the database set your IP to netword access
-// mongoose.connect(dbURI) //mongoose.connect(dbURI, {useNewUrlParses: true, useUnifiedTopology: true}) parameter is to stop a Deprecation warning. mongoose.connect is a asynchro called
-// 	.then((result) => app.listen(4000)) //you can set app.listen to ensure client only may link to the website while database connection successfully. !!!Using nodemon cannot see console
-// 	.catch((err) => console.log(err));
+const dbURI = 'mongodb+srv://rnd01:rnd12345@nodejs-tutorial.8narwid.mongodb.net/note-tuts?retryWrites=true&w=majority' //remember log in db acc, and go to the database set your IP to netword access
+mongoose.connect(dbURI) //mongoose.connect(dbURI, {useNewUrlParses: true, useUnifiedTopology: true}) parameter is to stop a Deprecation warning. mongoose.connect is a asynchro called
+	.then((result) => app.listen(4000)) //you can set app.listen to ensure client only may link to the website while database connection successfully. !!!Using nodemon cannot see console
+	.catch((err) => console.log(err));
 
 // //listen for requests
-app.listen(4000); //port number to connect this server
+// app.listen(4000); //port number to connect this server
 
 app.use((req, res, next) => {
 	console.log('first app.use');	
