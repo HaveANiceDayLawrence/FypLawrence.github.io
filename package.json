@@ -2,7 +2,8 @@
   "name": "frontend",
   "simple": "app.js",
   "scripts": {
-    "serve": "nodemon app.js"
+    "serve": "nodemon app.js",
+    "build": "node app.js"
   },
   "dependencies": {
     "express": "^4.18.2",
