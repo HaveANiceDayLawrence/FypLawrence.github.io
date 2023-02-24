@@ -13,6 +13,6 @@ RUN npm install dotenv
 RUN npm install connect-busboy
 # RUN npm install morgoapp.jsn
 
-EXPOSE 3030
+EXPOSE 3000
 
 CMD ["npm", "run", "build"]
