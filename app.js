@@ -97,6 +97,7 @@ app.post('/defects', upload.single("image"), async (req, res) => {
 
 	  //replace filename "\" to "/"
 	  var tidy_path = req.file.path
+	//   console.log(`file before format: ${tidy_path}`) //show the original upload full path
 	  tidy_path = `./${tidy_path.replaceAll('\\', '/')}` 
 	  tidy_path = tidy_path.replaceAll('public/', '') //remove "public/"
 	  console.log(tidy_path)
@@ -210,6 +211,24 @@ app.delete('/:id', (req,res) => {
 
 	Defect.findByIdAndDelete(id) //get the data with this object id, and delete it
 		.then(result => {
+
+			// delete the picture file from disk
+			//get the path name
+			var delete_path = result.img.data;
+			delete_path = delete_path.replaceAll('./assets/', 'public\\assets\\')
+			console.log(delete_path)
+			
+
+			if(fs.existsSync(delete_path)){
+				console.log("delete file is detected")
+				fs.unlinkSync(delete_path)
+				console.log("file delete successfully")
+			}
+			else
+				console.log('delete file is unfound')
+
+			
+
 			res.json({ redirect: '/defects'}) //here is the json object, { keyword : <redirect link>}, for delete cannot use redirect
 		})
 		.catch((err) => {
