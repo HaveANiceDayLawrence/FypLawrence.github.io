@@ -6,13 +6,16 @@
         <%- include('./partials/nav.ejs') %> <!-- '-'import/include other file to this file, like vue.js components-->
 
         <div class="create-defect content">
-            <form action="/defects" method="POST">
+            <form action="/defects" method="POST" enctype="multipart/form-data">
                 <label for="title">Defect title:</label>
                 <input for="text" id="title" name="title" required>
                 <label for="snippet">Defect snippet:</label>
                 <input for="text" id="snippet" name="snippet" required>
                 <label for="body">Defect body:</label>
                 <textarea id="body" required name="body"></textarea>
+                <label for="image">Upload Image</label>
+                <input type="file" id="image"
+                       name="image">
                 <button>Submit</button>
             </form>
         </div>

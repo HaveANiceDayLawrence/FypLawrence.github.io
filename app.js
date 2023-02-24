@@ -2,7 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Defect = require('./models/defect.js')
 const morgan = require('morgan')
-require('dotenv/config');
+require('dotenv/config'); //import this file for using .env variable
+
 
 //express app
 const app = express();
@@ -28,7 +29,8 @@ mongoose.connect(process.env.MONGO_URL, //get mongoDB URl from .env also include
 
 
 app.use((req, res, next) => {
-	console.log('first app.use');	
+	console.log('first app.use');
+	// console.log(req.file.filename);	
 	next(); //continue run below code
 });
 
@@ -37,6 +39,7 @@ app.use((req, res, next) => {
 //middleware && static files
 app.use(express.static('./public')) //mean the files in ("./public") current folder will become static file, start point is from this folder 
 app.use(express.static('./views'))  ////mean the files in ("./views") current folder will become static file, if link to this file will be downloaded
+// app.use(express.static('./uploads'))  ////mean the files in ("./uploads") current folder will become static file, if link to this file will be downloaded
 app.use(morgan('tiny')) //morgan (3 party middleware) will return a value on console
 app.use(express.urlencoded({ extended: true })) //while sending form/post request, assign the data to "req.body" 
 
@@ -61,17 +64,68 @@ app.get('/add-defect', (req,res) => {
 })
 
 //store data to mongo, by form
-app.post('/defects', (req, res) => { //this will be trigger when form is submit. Since form is set as post request, use post
-	//console.log(req.body) //this will get form data
-	const defect = new Defect(req.body)
-	defect.save() //save defect to collection
-	.then((result) => {
-		res.redirect('/defects') //redirect to /defects
-	})
-	.catch((err) => {
-		console.log(err)
-	})
-})
+// Set up multer for storing uploaded files
+
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+
+// Define the storage engine for Multer
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+	  cb(null, 'public/assets'); //set up where to store the upload pic (in server)
+	},
+	filename: (req, file, cb) => {
+	  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+	  cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+	}
+  });
+  
+  // Define the file upload middleware using Multer
+  const upload = multer({ storage: storage });
+
+
+// Define a route to handle form submissions
+//upload.single(<same as your img form input tag name>)
+app.post('/defects', upload.single("image"), async (req, res) => {
+	try {
+	  // Check if a file was included in the submission
+	  if (!req.file) {
+		throw new Error('\nNo file was uploaded\n');
+	  }
+
+	  //replace filename "\" to "/"
+	  var tidy_path = req.file.path
+	  tidy_path = `./${tidy_path.replaceAll('\\', '/')}` 
+	  tidy_path = tidy_path.replaceAll('public/', '') //remove "public/"
+	  console.log(tidy_path)
+	  
+	 //Create new Defect Object, We wil customize from data at here, before send to mongodb/defect.save()
+	  const defect = new Defect({
+		title: req.body.title,
+		snippet: req.body.snippet,
+		body: req.body.body,
+		img: {
+		  data: tidy_path,
+		  contentType: req.file.mimetype
+		}
+	  });
+  
+	  // Save the new Person object to the database
+	  await defect.save();
+  
+	  // Send a success message to the client
+	  res.status(200)
+	  console.log('\nfile was uploaded successfully\n');
+	  res.redirect('/defects') //redirect to /defects
+	} catch (err) {
+	  // Handle any errors that occur during the upload process
+	  console.error(err);
+	  res.status(500).send('Error uploading data to MongoDB');
+	  
+	}
+  });
 
 //get all data from mongo, but retrieve a JSON format
 app.get('/get-all-defects', (req,res) => {
@@ -117,6 +171,7 @@ app.get('/defects', (req,res) => {
 	})
 	.catch((err) => {
 		console.log(err)
+		console.log("upload form have issue --- now is developing db picture format")
 	})
 });
 

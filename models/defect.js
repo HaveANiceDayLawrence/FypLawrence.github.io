@@ -1,4 +1,6 @@
-const mongoose = require('mongoose')
+const { path } = require('express/lib/application');
+const mongoose = require('mongoose');
+const { stringify } = require('nodemon/lib/utils');
 const Schema = mongoose.Schema; //export mongoose.Schema to a variable
 
 const defectSchema = new Schema({ //create a defect Schema, like a defect object, used to define the structure 
@@ -16,7 +18,7 @@ const defectSchema = new Schema({ //create a defect Schema, like a defect object
     },
     hihi: Number, // int, float, etc
     img:{
-        data: Buffer,
+        data: String,
         contentType: String
     },
     date: {

@@ -19,6 +19,9 @@
                     <p>
                         <%= defect.date %>
                     </p>
+                    <p>
+                        <img src="<%= defect.img.data %>" alt="<%=defect.id + 'filename=' + defect.img.data%>">
+                    </p>
                     <button class="delete" data-doc="<%= defect._id %>">
                         delete
                     </button>
