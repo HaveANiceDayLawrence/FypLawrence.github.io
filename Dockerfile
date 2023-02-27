@@ -1,18 +1,30 @@
-FROM node:latest as build
+FROM node:14 as build
 
-COPY . /mnt
+COPY . ./app
+RUN rm -rf node_modules package-lock.json
 
-WORKDIR /mnt
+WORKDIR /app
 
-RUN npm install
-RUN npm install nodemon
-RUN npm install ejs
-RUN npm install mongoose
-RUN npm install multer
-RUN npm install dotenv
-RUN npm install connect-busboy
-# RUN npm install morgoapp.jsn
+RUN npm install morgan && \
+npm install express && \
+npm install nodemon && \
+npm install ejs && \
+npm install mongoose && \
+npm install multer && \
+npm install dotenv && \
+npm install path && \
+npm install fs
+
 
 EXPOSE 3030
 
 CMD ["npm", "run", "build"]
+
+# RUN npm install
+# RUN npm install nodemon
+# RUN npm install ejs
+# RUN npm install mongoose
+# RUN npm install multer
+# RUN npm install dotenv
+# # RUN npm install morgoapp.jsn
+
