@@ -37,7 +37,11 @@ nav ul {
 
 nav li {
     list-style-type: none;
-    margin-left: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    
+
 }
 
 nav h1 {
@@ -119,12 +123,41 @@ textarea {
     height: 120px;
 }
 
-.create-defect button {
+.form_submit {
     margin-top: 20px;
-    background: crimson;
+    background: rgba(57, 11, 131, 0.651);
     color: white;
     padding: 6px;
     border: 0;
     font-size: 1.2em;
     cursor: pointer;
+}
+
+.form_submit:hover {
+    border: 3px;
+    background: rgba(172, 138, 226, 0.849);
+    color: rgb(39, 36, 36);
+}
+
+
+.tab :hover{
+    background-color: rgb(130, 10, 243);
+    color: white;
+    font-weight: bold;
+}
+
+.red {
+    color: red;
+}
+
+.violet {
+    color: rgb(130, 10, 243);
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.italic{
+    font-style: italic;
 }

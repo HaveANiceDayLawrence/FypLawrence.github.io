@@ -8,22 +8,25 @@ const defectSchema = new Schema({ //create a defect Schema, like a defect object
         type: String,
         required: true
     },
-    snippet: {
+    desc: {
         type: String,
-        required: true
+        default: ""
     },
-    body: {
-        type: String,
-        required: true
+    img1:{
+        data: String,
+        contentType: String
     },
-    hihi: Number, // int, float, etc
-    img:{
+    img2:{
         data: String,
         contentType: String
     },
     date: {
         type: Date,
-        default: Date.now
+        default: new Date()
+    },
+    results: {
+        type: String,
+        default: "No Defects"
     }
     
 }, {timrstamps: true})

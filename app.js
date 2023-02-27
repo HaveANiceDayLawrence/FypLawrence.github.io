@@ -48,9 +48,8 @@ app.use(express.urlencoded({ extended: true })) //while sending form/post reques
 app.get('/add-defect', (req,res) => {
 	const defect = new Defect({ //here is create a new defect, follow the DOM on ./models/defect.js
 		title: "new defect 3",
-		snippet: 'about my new defect3',
-		body: 'more about my  defect3',
-		hihi: 123.04
+		desc: 'about my new defect3',
+		results: "No defects detected"
 	})
 
 	defect.save() //save defect to collection
@@ -69,6 +68,7 @@ app.get('/add-defect', (req,res) => {
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { publicDecrypt } = require('crypto');
 
 
 // Define the storage engine for Multer
@@ -88,29 +88,37 @@ const storage = multer.diskStorage({
 
 // Define a route to handle form submissions
 //upload.single(<same as your img form input tag name>)
-app.post('/defects', upload.single("image"), async (req, res) => {
+app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), async (req, res) => {
 	try {
 	  // Check if a file was included in the submission
-	  if (!req.file) {
+	  if (!req.files) {
 		throw new Error('\nNo file was uploaded\n');
 	  }
 
+
+
 	  //replace filename "\" to "/"
-	  var tidy_path = req.file.path
-	//console.log(`file before format: ${tidy_path}`) //show the original upload full path
-	  tidy_path = `./${tidy_path.replace('public/', '')}` 
-	//   tidyn_path = tidy_path.replaceAll('public/', '') //remove "public/"
-	  console.log(tidy_path)
+	  var u_img1 = req.files['image1'][0]
+	  var u_img2 = req.files['image2'][0]
+	// console.log(`file before format: ${u_img1}`) //show the original upload full path
+	// u_img1 is a object, {filename, fieldname(tagname), originalname(fs filename), minetype, destination, path(with \\) and size}
+
+	// Set filename (img.jpg) to ./assets/img.jpg		  
+	  img1_path = `./assets/${u_img1.filename}` 
+	  img2_path = `./assets/${u_img2.filename}` 
 	  
 	 //Create new Defect Object, We wil customize from data at here, before send to mongodb/defect.save()
 	  const defect = new Defect({
 		title: req.body.title,
-		snippet: req.body.snippet,
-		body: req.body.body,
-		img: {
-		  data: tidy_path,
-		  contentType: req.file.mimetype
-		}
+		desc: req.body.desc,
+		img1: {
+		  data: img1_path,
+		  contentType: u_img1.mimetype
+		},
+		img2: {
+			data: img2_path,
+			contentType: u_img2.mimetype
+		  }
 	  });
   
 	  // Save the new Person object to the database
@@ -157,9 +165,9 @@ app.get('/get-single-defects', (req,res) => {
 app.get('/', (req,res) => {
 	// res.send('<h1>pong</h1>'); // create and link to textplain website
 	const defects = [			// create own data and inject to the website
-		{title: 'You are my fire', snippet: 'The one desired'},
-		{title: 'believe what I said', snippet: 'I want it that way'},
-		{title: 'Tell me why', snippet: 'aim noting but a mistake'},
+		{title: 'New Defects', desc: 'Upload PCB pictures and information for detection', _id:'/create'},
+		{title: 'History', desc: 'Show all detection result', _id:'/defects'},
+		{title: 'About Us', desc: 'More details for website and develop team', _id:'/about'},
 	]
 	res.render('index', {title: 'Home', defects: defects}); //if install ejs, must use res.render(), filename is acceptable
 });
@@ -168,7 +176,7 @@ app.get('/', (req,res) => {
 app.get('/defects', (req,res) => {
 	Defect.find() //get all data from Defect
 	.then((result) => {
-		res.render('index', {title: 'History', defects: result}); //inject db data to index
+		res.render('history', {title: 'History', defects: result}); //inject db data to history
 	})
 	.catch((err) => {
 		console.log(err)
@@ -214,18 +222,26 @@ app.delete('/:id', (req,res) => {
 
 			// delete the picture file from disk
 			//get the path name
-			var delete_path = result.img.data;
-			delete_path = delete_path.replace('./assets/', 'public\\assets\\')
-			console.log(delete_path)
+			console.log(result)
+			var delete_img1 = result.img1.data || "unfound1.jpg" ;
+			var delete_img2 = result.img2.data || "unfound2.jpg";
+			delete_img1 = delete_img1.replace('./assets/', 'public\\assets\\')
+			delete_img2 = delete_img2.replace('./assets/', 'public\\assets\\')
+			// console.log(delete_path)
 			
 
-			if(fs.existsSync(delete_path)){
-				console.log("delete file is detected")
-				fs.unlinkSync(delete_path)
+			if(fs.existsSync(delete_img1) && fs.existsSync(delete_img2)){
+				console.log("delete file are detected")
+				fs.unlinkSync(delete_img1)
+				fs.unlinkSync(delete_img2)
 				console.log("file delete successfully")
 			}
+			else if(!fs.existsSync(delete_img1) && fs.existsSync(delete_img2))
+				console.log("reference file cannot detected")
+			else if(!fs.existsSync(delete_img2) && fs.existsSync(delete_img1))
+				console.log("suspicious file cannot detected")
 			else
-				console.log('delete file is unfound')
+				console.log('delete file are unfound')
 
 			
 

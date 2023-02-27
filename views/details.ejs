@@ -11,16 +11,28 @@
                 </h2>
                 <div class="content">
                     <p>
-                        <%= defect.snippet %>
+                        <p class="bold">Description :</p>
+                        <%= defect.desc %>
                     </p>
+                    <br>
                     <p>
-                        <%= defect.body %>
-                    </p>
-                    <p>
+                        <p class="bold">Date :</p>
                         <%= defect.date %>
                     </p>
+                    <br>
                     <p>
-                        <img src="<%= defect.img.data %>" alt="<%=defect.id + 'filename=' + defect.img.data%>">
+                        <p class="bold">Result :</p>
+                        <%= defect.results %>
+                    </p>
+                    <br>
+                    <p>
+                        <p class="bold">Image 1 :</p>
+                        <img src="<%= defect.img1.data %>" alt="<%=defect.id + 'filename=' + defect.img1.data%>">
+                    </p>
+                    <br>
+                    <p>
+                        <p class="bold">Image 2 :</p>
+                        <img src="<%= defect.img2.data %>" alt="<%=defect.id + 'filename=' + defect.img2.data%>">
                     </p>
                     <button class="delete" data-doc="<%= defect._id %>">
                         delete

@@ -7,16 +7,15 @@
 
         <div class="create-defect content">
             <form action="/defects" method="POST" enctype="multipart/form-data">
-                <label for="title">Defect title:</label>
+                <label for="title">Title:</label>
                 <input for="text" id="title" name="title" required>
-                <label for="snippet">Defect snippet:</label>
-                <input for="text" id="snippet" name="snippet" required>
-                <label for="body">Defect body:</label>
-                <textarea id="body" required name="body"></textarea>
-                <label for="image">Upload Image</label>
-                <input type="file" id="image"
-                       name="image">
-                <button>Submit</button>
+                <label for="desc">Description:</label>
+                <textarea id="desc" name="desc" required></textarea>
+                <label for="image1">Upload Reference Image</label>
+                <input type="file" id="image1" name="image1" required>
+                <label for="image2">Upload Suspicious Image</label>
+                <input type="file" id="image2" name="image2" required>
+                <button class="form_submit">Submit</button>
             </form>
         </div>
         <%- include('./partials/footer.ejs') %>
