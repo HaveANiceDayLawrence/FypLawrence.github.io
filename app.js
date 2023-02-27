@@ -97,9 +97,9 @@ app.post('/defects', upload.single("image"), async (req, res) => {
 
 	  //replace filename "\" to "/"
 	  var tidy_path = req.file.path
-	//   console.log(`file before format: ${tidy_path}`) //show the original upload full path
-	  tidy_path = `./${tidy_path.replaceAll('\\', '/')}` 
-	  tidy_path = tidy_path.replaceAll('public/', '') //remove "public/"
+	//console.log(`file before format: ${tidy_path}`) //show the original upload full path
+	  tidy_path = `./${tidy_path.replace('public/', '')}` 
+	//   tidyn_path = tidy_path.replaceAll('public/', '') //remove "public/"
 	  console.log(tidy_path)
 	  
 	 //Create new Defect Object, We wil customize from data at here, before send to mongodb/defect.save()
@@ -215,7 +215,7 @@ app.delete('/:id', (req,res) => {
 			// delete the picture file from disk
 			//get the path name
 			var delete_path = result.img.data;
-			delete_path = delete_path.replaceAll('./assets/', 'public\\assets\\')
+			delete_path = delete_path.replace('./assets/', 'public\\assets\\')
 			console.log(delete_path)
 			
 
