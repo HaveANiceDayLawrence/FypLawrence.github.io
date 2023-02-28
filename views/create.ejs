@@ -7,16 +7,20 @@
 
         <div class="create-defect content">
             <form action="/defects" method="POST" enctype="multipart/form-data">
-                <label for="title">Title:</label>
-                <input for="text" id="title" name="title" required>
+                <label for="title">Title: <span class="red">*</span></label>
+                <input for="text" id="title" name="title" required placeholder="Name/Model...">
                 <label for="desc">Description:</label>
-                <textarea id="desc" name="desc" required></textarea>
-                <label for="image1">Upload Reference Image</label>
+                <textarea id="desc" name="desc" require placeholder="Details...."></textarea>
+                <label for="image1">Upload Reference Image (Max. 4MB)<span class="red">*</span></label>
                 <input type="file" id="image1" name="image1" required>
-                <label for="image2">Upload Suspicious Image</label>
+                <label for="image2">Upload Suspicious Image (Max. 4MB)<span class="red">*</span></label>
                 <input type="file" id="image2" name="image2" required>
                 <button class="form_submit">Submit</button>
+                <% if(alert) {%>
+                <h4 class="red bold">Alert: Upload Files cannot greater than 4MB</h4>
+                <% } %>
             </form>
+
         </div>
         <%- include('./partials/footer.ejs') %>
     </body>
