@@ -13,7 +13,11 @@ npm install mongoose && \
 npm install multer && \
 npm install dotenv && \
 npm install path && \
-npm install fs
+npm install fs && \
+npm install child_process && \
+npm install form-data && \
+npm install axios && \
+npm install alert
 
 
 EXPOSE 3030

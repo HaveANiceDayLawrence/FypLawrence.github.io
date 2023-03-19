@@ -1,14 +1,8 @@
-const express = require('express'); //for ejs, CRUD method, and app.use
-const mongoose = require('mongoose'); //to connect mongoDB
-const Defect = require('./models/defect.js') //to get DB format
-const morgan = require('morgan') //third party middleware to return value for app.call
+const express = require('express');
+const mongoose = require('mongoose'); 
+const Defect = require('./models/defect.js')
+const morgan = require('morgan')
 require('dotenv/config'); //import this file for using .env variable
-const multer = require('multer'); // for storing uploaded files info (like destination path)
-const path = require('path'); //to get upload files path value
-const { spawn } = require('child_process'); //child process is use for run python script
-const FormData = require('form-data'); //from-data is pass all images to python
-const fs = require('fs');
-let alert = require('alert');
 
 
 //express app
@@ -17,7 +11,11 @@ const app = express();
 //register view engine (ejs), if folder != "views", second line put app.set('views', 'myviews')
 app.set('view engine', 'ejs')
 
-//connect to mongo database, URL must set below app = express()								
+//connect to mongo database, URL must set below app = express()								/here is the database name, if not exist will create new one
+// const dbURI = 'mongodb+srv://rnd01:rnd12345@nodejs-tutorial.8narwid.mongodb.net/note-tuts?retryWrites=true&w=majority' //remember log in db acc, and go to the database set your IP to netword access
+// mongoose.connect(dbURI) //mongoose.connect(dbURI, {useNewUrlParses: true, useUnifiedTopology: true}) parameter is to stop a Deprecation warning. mongoose.connect is a asynchro called
+// 	.then((result) => app.listen(4000)) //you can set app.listen to ensure client only may link to the website while database connection successfully. !!!Using nodemon cannot see console
+// 	.catch((err) => console.log(err));
 
 // //listen for requests
 // app.listen(4000); //port number to connect this server
@@ -30,22 +28,50 @@ mongoose.connect(process.env.MONGO_URL, //get mongoDB URl from .env also include
 	.catch((err) => console.log(err));
 
 
-// app.use((req, res, next) => {
-// 	console.log('\nNew request is received, good luck');
-// 	// console.log(req.file.filename);	
-// 	next(); //continue run below code
-// });
+app.use((req, res, next) => {
+	console.log('first app.use');
+	// console.log(req.file.filename);	
+	next(); //continue run below code
+});
+
 
 
 //middleware && static files
 app.use(express.static('./public')) //mean the files in ("./public") current folder will become static file, start point is from this folder 
 app.use(express.static('./views'))  ////mean the files in ("./views") current folder will become static file, if link to this file will be downloaded
+// app.use(express.static('./uploads'))  ////mean the files in ("./uploads") current folder will become static file, if link to this file will be downloaded
 app.use(morgan('tiny')) //morgan (3 party middleware) will return a value on console
 app.use(express.urlencoded({ extended: true })) //while sending form/post request, assign the data to "req.body" 
 
 // // mongoose and mongo sandbox routes
+// //store data to mongo, by url
+app.get('/add-defect', (req, res) => {
+	const defect = new Defect({ //here is create a new defect, follow the DOM on ./models/defect.js
+		title: "new defect 3",
+		desc: 'about my new defect3',
+		results: "No defects detected"
+	})
+
+	defect.save() //save defect to collection
+		.then((result) => {
+			res.send(result)
+		})
+		.catch((err) => {
+			console.log(err)
+		})
+
+})
+
 //store data to mongo, by form
 // Set up multer for storing uploaded files
+
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { publicDecrypt } = require('crypto');
+const { resolve } = require('path');
+
+
 // Define the storage engine for Multer
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
@@ -97,71 +123,84 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 			res.status(400).render('create', { title: 'Create Defect', alert: true })
 		}
 		else {
+			const { spawn } = require('child_process');
+			const FormData = require('form-data');
 
-			//Set filepath (python script, image1 && 2 path on server) for python script
-			const pythonScript = './pythonTest.py';
-			const file1 = `./public/assets/${u_img1.filename}`;
-			const file2 = `./public/assets/${u_img2.filename}`;
+			// Set filename (img.jpg) to ./assets/img.jpg		  
+			img1_path = `./assets/${u_img1.filename}`
+			img2_path = `./assets/${u_img2.filename}`
 
-			//collect both image into form
+			//Set filepath for python script
+			const pythonScript = './pythonTest.py'; console.log("Assign python file path")
+			const file1 = `./public/assets/${u_img1.filename}`; console.log("Assign python file path")
+			const file2 = `./public/assets/${u_img2.filename}`; console.log("Assign python file path")
+
 			const form = new FormData();
 			form.append('file1', fs.createReadStream(file1));
 			form.append('file2', fs.createReadStream(file2));
 
 			const child = spawn('python', [pythonScript, file1, file2], { stdio: ['pipe', 'pipe', 'inherit'] });
-			console.log("python script is ready to running")
 
-			form.pipe(child.stdin); //insert 2 img from form to python script
+			form.pipe(child.stdin);
 
-			let pythonResult = ''
+			let pthonResult = ''
 
 			child.stdout.on('data', (data) => {
-				pythonResult += data; //data is object(but in bytes fotm), p is string(print from python)
-				// console.log(pythonResult) //output from python script
-			});
-			child.on('close', async (code) => { //if code != 0, mean have error. otherwise = all good
+				pthonResult += data;
+				console.log(pthonResult.message)
+				console.log(typeof data)
+				console.log(typeof pthonResult)
+			  });
+			  child.on('close', async (code) => {
 				if (code !== 0) {
-					console.error(`Python script exited with code ${code}`);
-					return res.status(500).send('Error');
+				  console.error(`Python script exited with code ${code}`);
+				  return res.status(500).send('Error');
 				}
 
-				console.log("result = " + pythonResult)
+
+			// const R_from_py = await pythonRunner(u_img1.filename, u_img2.filename)
+			// var test = [1,2,2,3]
+			// console.log('Reply from py line127' + test)
+			console.log("result = " + pthonResult)
+
+
+			// if(python_output == "python_error"){
+			// 	console.log("Python side have issue")
+			// 	throw new Error('\nCannot access to Python file\n');
+			// }
 
 
 
-				// Set filename (img.jpg) to ./assets/img.jpg		  
-				img1_path = `./assets/${u_img1.filename}`
-				img2_path = `./assets/${u_img2.filename}`
 
 
-				//Create new Defect Object, We wil customize from data at here, before send to mongodb/defect.save()
-				const defect = new Defect({
-					title: req.body.title,
-					desc: req.body.desc,
-					img1: {
-						data: img1_path,
-						contentType: u_img1.mimetype
-					},
-					img2: {
-						data: img2_path,
-						contentType: u_img2.mimetype
-					},
-					results: pythonResult
-				});
+			//Create new Defect Object, We wil customize from data at here, before send to mongodb/defect.save()
+			const defect = new Defect({
+				title: req.body.title,
+				desc: req.body.desc,
+				img1: {
+					data: img1_path,
+					contentType: u_img1.mimetype
+				},
+				img2: {
+					data: img2_path,
+					contentType: u_img2.mimetype
+				},
+				// results: python_output
+			});
 
+			// console.log('Reply from py line156' + R_from_py)
 
-				// Save the new Defect object to the database
-				// await defect.save();
-				console.log(defect)
-				alert('Result is ready, please refresh the page'); //after python finish, pop out a window to refresh page
-				
-			})
+			// Save the new Person object to the database
+			
+			// await defect.save();
+			console.log(defect)
+		})
 
 			// Send a success message to the client
 			res.status(200)
 			console.log('\nfile was uploaded successfully\n');
 			res.redirect('/defects') //redirect to /defects
-			alert('Please wait a moment, the data is processing now'); //pop out a window to show message
+			// console.log('Reply from py line166' + R_from_py)
 		}
 	} catch (err) {
 		// Handle any errors that occur during the upload process
@@ -177,6 +216,18 @@ app.get('/get-all-defects', (req, res) => {
 		.then((result) => {
 			res.send(result)
 			console.log(result[3].title)
+		})
+		.catch((err) => {
+			console.log(err)
+		})
+
+})
+
+//get specific data from mongo by object id
+app.get('/get-single-defects', (req, res) => {
+	Defect.findById('63a55249620fc463315731c4') //get the data(JSON format) with this object id
+		.then((result) => {
+			res.send(result)
 		})
 		.catch((err) => {
 			console.log(err)
@@ -203,6 +254,7 @@ app.get('/defects', (req, res) => {
 		})
 		.catch((err) => {
 			console.log(err)
+			console.log("upload form have issue --- now is developing db picture format")
 		})
 });
 
@@ -279,3 +331,53 @@ app.use((req, res) => { //***default, use() function will trigger for every sing
 	//res.status(404).sendFile('./views/404.ejs', { root: __dirname }) //status(status code) 
 	res.status(404).render('404', { title: '404 Page not found' });
 });
+
+
+function sendImgToPython(path1, path2) {
+	// Function body goes here...
+	const { spawn } = require('child_process');
+	const FormData = require('form-data');
+	const fs = require('fs');
+
+	const pythonScript = './pythonTest.py'; console.log("Python: read python file")
+	const file1 = `./public/assets/${path1}`; console.log("Python: read image 1" + file1)
+	const file2 = `./public/assets/${path2}`; console.log("Python: read image 2")
+
+	const form = new FormData();
+	form.append('file1', fs.createReadStream(file1));
+	form.append('file2', fs.createReadStream(file2));
+
+	const child = spawn('python', [pythonScript, file1, file2], { stdio: ['pipe', 'pipe', 'inherit'] });
+
+	form.pipe(child.stdin);
+
+	//read message from python, and return the value
+	child.stdout.on('data', async (data) => {
+		const json = Buffer.from(data, 'base64').toString('utf-8');
+		const output = JSON.parse(json);
+		console.log(output.message);
+		return output.message;
+	});
+
+	child.on('close', async (code) => {
+		if (code !== 0) {
+			console.error(`Python script exited with code ${code}`);
+			return "python_error";
+		}
+
+		return "hihi"
+	});
+
+
+}
+
+async function pythonRunner(path1, path2) {
+	console.log('Starting Python script...');
+	return sendImgToPython(path1, path2)
+		.then(() => {
+			console.log('Python script finished!');
+		})
+		.catch((err) => {
+			console.error('Error running Python script:', err);
+		});
+}
