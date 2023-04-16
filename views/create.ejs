@@ -11,13 +11,16 @@
                 <input for="text" id="title" name="title" required placeholder="Name/Model...">
                 <label for="desc">Description:</label>
                 <textarea id="desc" name="desc" require placeholder="Details...."></textarea>
-                <label for="image1">Upload Reference Image (Max. 4MB)<span class="red">*</span></label>
-                <input type="file" id="image1" name="image1" required>
-                <label for="image2">Upload Suspicious Image (Max. 4MB)<span class="red">*</span></label>
-                <input type="file" id="image2" name="image2" required>
+                <label for="image1">Upload Reference Image (Max. 4MB. Only .png/.jpg/.jpeg/.webp is acceptable)<span class="red">*</span></label>
+                <input type="file" id="image1" name="image1" required accept=".png, .jpg, .jpeg, .webp">
+                <label for="image2">Upload Suspicious Image (Max. 4MB. Only .png/.jpg/.jpeg/.webp is acceptable)<span class="red">*</span></label>
+                <input type="file" id="image2" name="image2" required accept=".png, .jpg, .jpeg, .webp">
                 <button class="form_submit">Submit</button>
-                <% if(alert) {%>
+                <% if(alert == 1) {%>
                 <h4 class="red bold">Alert: Upload Files cannot greater than 4MB</h4>
+                <% } %>
+                <% if(alert == 2) {%>
+                    <h4 class="red bold">Alert: Upload files only can be accept with .png, .jpg, .jpeg, .webp extension </h4>
                 <% } %>
             </form>
 

@@ -80,35 +80,55 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 		var ImageMaximumSize = 4 * 1024 * 1024; // 4 MB in bytes
 		var Image1OverSize = false;
 		var Image2OverSize = false;
-		if (u_img1.size > ImageMaximumSize) { //check image 1
+		var Image1Format = true;
+		var Image2Format = true;
+		var image1Extension = u_img1.originalname.split(".")[1];
+		var image2Extension = u_img2.originalname.split(".")[1];
+
+		if (u_img1.size > ImageMaximumSize) { //check image 1 size
 			console.log(`Reference File ${u_img1.originalname} is too large`);
 			Image1OverSize = true;
 		}
 
-		if (u_img2.size > ImageMaximumSize) { //check image 2
+		else if (u_img2.size > ImageMaximumSize) { //check image 2 size
 			console.log(`Suspicious File ${u_img2.originalname} is too large`);
 			Image2OverSize = true;
 
 		}
 
+		if (image1Extension != "jpg" && image1Extension != "png" && image1Extension != "jpeg" && image1Extension != "webp"){ //check image 1 format
+			console.log(`Reference File ${u_img1.originalname} wrong format`);
+			Image1Format = false;
+		}
+
+		else if (image2Extension != "jpg" && image2Extension != "png" && image2Extension != "jpeg" && image2Extension != "webp"){ //check image 2 format
+			console.log(`Suspicious File ${u_img2.originalname} wrong format`);
+			Image2Format = false;
+		}
+
 		if (Image1OverSize || Image2OverSize) { //If 1 of images is oversize, delete uploaded images and go back to Form
 			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
 			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
-			res.status(400).render('create', { title: 'Create Defect', alert: true })
+			res.status(400).render('create', { title: 'Create Defect', alert: 1 })
+		}
+		if (!Image1Format || !Image2Format) { //If 1 of images is wrong format, delete uploaded images and go back to Form
+			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
+			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			res.status(400).render('create', { title: 'Create Defect', alert: 2 })
 		}
 		else {
 
 			//Set filepath (python script, image1 && 2 path on server) for python script
-			const pythonScript = './pythonTest.py';
+			const pythonScript = './pythonTest2.py';
 			const file1 = `./public/assets/${u_img1.filename}`;
 			const file2 = `./public/assets/${u_img2.filename}`;
 
 			//collect both image into form
 			const form = new FormData();
-			form.append('file1', fs.createReadStream(file1));
-			form.append('file2', fs.createReadStream(file2));
+			form.append('file1', file1);
+			form.append('file2', file2);
 
-			const child = spawn('python', [pythonScript, file1, file2], { stdio: ['pipe', 'pipe', 'inherit'] });
+			const child = spawn('python3', [pythonScript, file1, file2], { stdio: ['pipe', 'pipe', 'inherit'] });
 			console.log("python script is ready to running")
 
 			form.pipe(child.stdin); //insert 2 img from form to python script
@@ -117,7 +137,6 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 
 			child.stdout.on('data', (data) => {
 				pythonResult += data; //data is object(but in bytes fotm), p is string(print from python)
-				// console.log(pythonResult) //output from python script
 			});
 			child.on('close', async (code) => { //if code != 0, mean have error. otherwise = all good
 				if (code !== 0) {
@@ -151,7 +170,7 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 
 
 				// Save the new Defect object to the database
-				// await defect.save();
+				defect.save();
 				console.log(defect)
 				alert('Result is ready, please refresh the page'); //after python finish, pop out a window to refresh page
 				
@@ -159,7 +178,7 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 
 			// Send a success message to the client
 			res.status(200)
-			console.log('\nfile was uploaded successfully\n');
+			console.log('\nfile was uploaded and pass to python successfully\n');
 			res.redirect('/defects') //redirect to /defects
 			alert('Please wait a moment, the data is processing now'); //pop out a window to show message
 		}
@@ -213,7 +232,7 @@ app.get('/about', (req, res) => {
 });
 
 app.get('/create', (req, res) => {
-	res.render('create', { title: 'Create Defect', alert: false })
+	res.render('create', { title: 'Create Defect', alert: 0 })
 });
 
 app.get('/oldAbout', (req, res) => { //redirect old link to new link
