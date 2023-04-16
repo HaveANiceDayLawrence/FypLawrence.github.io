@@ -170,7 +170,7 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 
 
 				// Save the new Defect object to the database
-				defect.save();
+				await defect.save();
 				console.log(defect)
 				alert('Result is ready, please refresh the page'); //after python finish, pop out a window to refresh page
 				
