@@ -76,7 +76,7 @@ if __name__ == '__main__':
             npArray.remove(1)  # Remove the element 1(No defect) from the list
     
         # Define a dictionary that maps values to defects status
-        defects_dict = {0: 'Missing Hole', 1:'No defects', 2:'Uncosistence Hole Size'}
+        defects_dict = {0: 'Missing Hole', 1:'No defects', 2:'In cosistence Hole Size'}
 
         # Create a new tuple with values replaced by defect status
         final_result = list(defects_dict.get(x, x) for x in npArray)

@@ -96,12 +96,12 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 
 		}
 
-		if (image1Extension != "jpg" && image1Extension != "png" && image1Extension != "jpeg" && image1Extension != "webp"){ //check image 1 format
+		if (image1Extension != "jpg" && image1Extension != "png" && image1Extension != "jpeg" && image1Extension != "webp") { //check image 1 format
 			console.log(`Reference File ${u_img1.originalname} wrong format`);
 			Image1Format = false;
 		}
 
-		else if (image2Extension != "jpg" && image2Extension != "png" && image2Extension != "jpeg" && image2Extension != "webp"){ //check image 2 format
+		else if (image2Extension != "jpg" && image2Extension != "png" && image2Extension != "jpeg" && image2Extension != "webp") { //check image 2 format
 			console.log(`Suspicious File ${u_img2.originalname} wrong format`);
 			Image2Format = false;
 		}
@@ -173,7 +173,7 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 				await defect.save();
 				console.log(defect)
 				alert('Result is ready, please refresh the page'); //after python finish, pop out a window to refresh page
-				
+
 			})
 
 			// Send a success message to the client
