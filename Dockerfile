@@ -18,7 +18,8 @@ npm install fs && \
 npm install child_process && \
 npm install form-data && \
 npm install axios && \
-npm install alert
+npm install alert && \
+npm install image-size
 
 RUN apt-get update && \
 apt-get install -y python3-pip && \

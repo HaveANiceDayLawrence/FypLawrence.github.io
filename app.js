@@ -8,6 +8,7 @@ const path = require('path'); //to get upload files path value
 const { spawn } = require('child_process'); //child process is use for run python script
 const FormData = require('form-data'); //from-data is pass all images to python
 const fs = require('fs');
+const sizeOf = require('image-size')
 let alert = require('alert');
 
 
@@ -84,6 +85,9 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 		var Image2Format = true;
 		var image1Extension = u_img1.originalname.split(".")[1];
 		var image2Extension = u_img2.originalname.split(".")[1];
+		var dimensions1 = sizeOf(`public\\assets\\${u_img1.filename}`);
+		var dimensions2 = sizeOf(`public\\assets\\${u_img2.filename}`);
+
 
 		if (u_img1.size > ImageMaximumSize) { //check image 1 size
 			console.log(`Reference File ${u_img1.originalname} is too large`);
@@ -111,10 +115,15 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
 			res.status(400).render('create', { title: 'Create Defect', alert: 1 })
 		}
-		if (!Image1Format || !Image2Format) { //If 1 of images is wrong format, delete uploaded images and go back to Form
+		else if (!Image1Format || !Image2Format) { //If 1 of images is wrong format, delete uploaded images and go back to Form
 			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
 			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
 			res.status(400).render('create', { title: 'Create Defect', alert: 2 })
+		}
+		else if ( (dimensions1.width != dimensions2.width) || (dimensions1.height != dimensions2.height)) { //If 1 of images is wrong format, delete uploaded images and go back to Form
+			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
+			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			res.status(400).render('create', { title: 'Create Defect', alert: 3 })
 		}
 		else {
 
