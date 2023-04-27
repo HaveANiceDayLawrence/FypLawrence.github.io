@@ -8,7 +8,7 @@ const path = require('path'); //to get upload files path value
 const { spawn } = require('child_process'); //child process is use for run python script
 const FormData = require('form-data'); //from-data is pass all images to python
 const fs = require('fs');
-const sizeOf = require('image-size')
+const sizeOf = require('image-size');
 let alert = require('alert');
 
 
@@ -85,8 +85,14 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 		var Image2Format = true;
 		var image1Extension = u_img1.originalname.split(".")[1];
 		var image2Extension = u_img2.originalname.split(".")[1];
-		var dimensions1 = sizeOf(`public\\assets\\${u_img1.filename}`);
-		var dimensions2 = sizeOf(`public\\assets\\${u_img2.filename}`);
+		var dimensions1 = 0;
+		var dimensions2 = 0;
+		try{
+		var dimensions1 = sizeOf(`./public/assets/${u_img1.filename}`, { maxBufferLength: 5*1024*1024 }); //for linux,docker path need this format
+		var dimensions2 = sizeOf(`./public/assets/${u_img2.filename}`, { maxBufferLength: 5*1024*1024 }); //for linux,docker path need this format(./public/assets/${u_img2.filename})
+		} catch(err) {
+			console.log("cannot not get image size, maybe the image is too big or store in cmyk format");
+		}
 
 
 		if (u_img1.size > ImageMaximumSize) { //check image 1 size
@@ -111,18 +117,24 @@ app.post('/defects', upload.fields([{ name: 'image1' }, { name: 'image2' }]), as
 		}
 
 		if (Image1OverSize || Image2OverSize) { //If 1 of images is oversize, delete uploaded images and go back to Form
-			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
-			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			// fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
+			// fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			fs.unlinkSync(`./public/assets/${u_img1.filename}`)
+			fs.unlinkSync(`./public/assets/${u_img2.filename}`)
 			res.status(400).render('create', { title: 'Create Defect', alert: 1 })
 		}
 		else if (!Image1Format || !Image2Format) { //If 1 of images is wrong format, delete uploaded images and go back to Form
-			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
-			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			// fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
+			// fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			fs.unlinkSync(`./public/assets/${u_img1.filename}`)
+			fs.unlinkSync(`./public/assets/${u_img2.filename}`)
 			res.status(400).render('create', { title: 'Create Defect', alert: 2 })
 		}
-		else if ( (dimensions1.width != dimensions2.width) || (dimensions1.height != dimensions2.height)) { //If 1 of images is wrong format, delete uploaded images and go back to Form
-			fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
-			fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+		else if ( (await dimensions1.width !=  await dimensions2.width) || (dimensions1.height != dimensions2.height)) { //If 1 of images is wrong format, delete uploaded images and go back to Form
+			// fs.unlinkSync(`public\\assets\\${u_img1.filename}`)
+			// fs.unlinkSync(`public\\assets\\${u_img2.filename}`)
+			fs.unlinkSync(`./public/assets/${u_img1.filename}`)
+			fs.unlinkSync(`./public/assets/${u_img2.filename}`)
 			res.status(400).render('create', { title: 'Create Defect', alert: 3 })
 		}
 		else {
@@ -275,8 +287,8 @@ app.delete('/:id', (req, res) => {
 			console.log(result)
 			var delete_img1 = result.img1.data || "unfound1.jpg";
 			var delete_img2 = result.img2.data || "unfound2.jpg";
-			delete_img1 = delete_img1.replace('./assets/', 'public\\assets\\')
-			delete_img2 = delete_img2.replace('./assets/', 'public\\assets\\')
+			delete_img1 = delete_img1.replace('./assets/', './public/assets/')
+			delete_img2 = delete_img2.replace('./assets/', './public/assets/')
 			// console.log(delete_path)
 
 
